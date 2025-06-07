@@ -103,7 +103,7 @@ function prepareWitnessProof(arrWitnesses, last_stable_mci, handleResult){
 			});
 		},
 		function(cb){ // add definition changes and new definitions of witnesses
-			var after_last_stable_mci_cond = (last_stable_mci > 0) ? "latest_included_mc_index>="+last_stable_mci : "1";
+			var after_last_stable_mci_cond = (last_stable_mci > 0) ? "latest_included_mc_index >= ?" : "1=1";
 			db.query(
 				/*"SELECT DISTINCT units.unit \n\
 				FROM unit_authors \n\
@@ -133,7 +133,7 @@ function prepareWitnessProof(arrWitnesses, last_stable_mci, handleResult){
 				CROSS JOIN units ON unit_authors.unit=units.unit \n\
 				WHERE address_definition_changes.address IN(?) AND "+after_last_stable_mci_cond+" AND is_stable=1 AND sequence='good' \n\
 				ORDER BY `level`", 
-				[arrWitnesses, arrWitnesses, arrWitnesses],
+				[arrWitnesses, arrWitnesses, arrWitnesses, last_stable_mci > 0 ? last_stable_mci : undefined],
 				function(rows){
 					async.eachSeries(rows, function(row, cb2){
 						storage.readJoint(db, row.unit, {
